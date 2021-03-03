@@ -6,7 +6,7 @@ const zlib = require('zlib')
 const AdmZip = require('adm-zip');
 
 const prefix = 'https://github.com/Dreamacro/clash/releases/download'
-const version = 'v1.3.5'
+const version = '2021.02.21'
 const binary_name = 'clash'
 
 async function downloadClashBinary() {
@@ -44,7 +44,7 @@ async function downloadClashBinary() {
         default:
             break
     }
-    url = `${prefix}/${version}/${binary_name}-${platform}-${arch}-${version}${ext}`
+    url = `${prefix}/premium/${binary_name}-${platform}-${arch}-${version}${ext}`
     fileName = `clash-${platform}-${arch}${platform === 'windows' ? '.exe' : ''}`
     const filePath = path.join('.', 'clash-binaries', fileName + ext)
     if (fs.existsSync(filePath)) {
