@@ -2,11 +2,13 @@ const path = require('path')
 const { exec } = require('child_process');
 const spawn = require('child_process').spawnSync
 const fs = require('fs')
+const log = require('electron-log')
 
 const { isElectronDebug, getDataPath, isWindows, isLinux } = require('./utils')
-const { switchToCurrentProfile } = require('./profiles-manager')
+const { switchToCurrentProfile } = require('./profiles-manager');
 
 var clashProcess = undefined
+var exiting = false
 
 function _getClashBinaryPath() {
     let platform = ''
@@ -60,13 +62,24 @@ function _spawnClash(configName) {
     if (isElectronDebug()) {
         console.log('Spawn cmd = ' + cmd)
     }
-    clashProcess = exec(cmd, { detached: true })
+    clashProcess = exec(cmd, { detached: true }, (err) => {
+        if (!exiting) {
+            _killClash()
+            _spawnClash()
+            log.error(`Clash process exit with signal: ${err ? err.signal : 'null'}. \n
+Code: ${err ? err.code : 'null'}; \n
+Stack: ${err ? err.stack : 'null'}. \n
+--------------------------------------`)
+        }
+    })
     setTimeout(() => {
         switchToCurrentProfile()
     }, 500)
+    exiting = false
 }
 
 function _killClash() {
+    exiting = true
     if (clashProcess && clashProcess.kill) {
         if (isWindows()) {
             spawn("taskkill", ["/pid", clashProcess.pid, '/f', '/t'])
@@ -75,6 +88,7 @@ function _killClash() {
         } else {
             clashProcess.kill('SIGINT')
         }
+        clashProcess = null
     }
 }
 

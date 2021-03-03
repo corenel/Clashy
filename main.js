@@ -20,11 +20,13 @@ const { IPCCalls } = require('./src/native-support/ipc-calls')
 const { ClashBinary, utils } = require('./src/native-support')
 const { openConfigFolder, openLink, getStartWithSystem, setStartWithSystem, setAsSystemProxy, restorePortSettings } = require('./src/native-support/os-helper')
 const { initializeTray, destroyTrayIcon, setWindowInstance } = require('./src/native-support/tray-helper')
+const { injectContextMenu } = require('./src/native-support/context-menu')
 const path = require('path')
 const { addSubscription, deleteSubscription, updateSubscription } = require('./src/native-support/subscription-updater')
 const { fetchProfiles } = require('./src/native-support/profiles-manager')
 const { setProfile, setProxy, getCurrentConfig, initialConfigsIfNeeded, setLaunchMinimized } = require('./src/native-support/configs-manager')
 const { batchRequestDelay } = require('./src/native-support/check-delay')
+const { isWindows, isLinux } = require('./src/native-support/utils')
 const { autoUpdater } = require('electron-updater')
 const { curry } = require('./src/utils/curry')
 
@@ -39,10 +41,13 @@ function createWindow() {
     win = new BrowserWindow({
         width: 800,
         height: 600,
+        titleBarStyle: isWindows() ? 'default' : 'hiddenInset',
+        frame: !(isWindows() || isLinux()),
         webPreferences: {
             preload: path.join(__dirname, 'src', 'native-support', 'electron-preload.js'),
             webSecurity: false
-        }
+        },
+        icon: path.join(__dirname, 'src', 'assets', 'icon.png')
     })
     win.setFullScreenable(false)
     win.setResizable(false)
@@ -66,6 +71,8 @@ function createWindow() {
     } else {
         win.loadFile('index.html')
     }
+
+    injectContextMenu(win)
 
     win.on('closed', () => {
         win = null
@@ -265,11 +272,20 @@ function setMainMenu() {
             ]
         },
         {
+            label: 'Window',
+            submenu: [
+                { role: 'close' }
+            ]
+        },
+        {
             label: 'Edit',
             submenu: [
+                { role: 'undo' },
+                { role: 'redo' },
                 { role: 'copy' },
                 { role: 'cut' },
                 { role: 'paste' },
+                { role: 'selectAll' }
             ]
         }
     ];

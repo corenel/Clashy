@@ -18,7 +18,7 @@ function initializeTray(_window, _createWindow) {
             label: 'Copy export command',
             click: copyExportCommand
         }]),
-        { label: 'Quit', click: quitApp}
+        { label: 'Quit', click: quitApp }
     ])
     tray.setToolTip('Clashy')
     tray.setContextMenu(contextMenu)

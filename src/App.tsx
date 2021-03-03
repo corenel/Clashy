@@ -9,6 +9,9 @@ import { AppBar, Toolbar, Typography } from '@material-ui/core'
 import { RootState } from './store/reducers'
 
 import { getIcon } from './utils'
+import { TitleBar, WindowControls } from './components/title-bar'
+
+import './styles/grabber.css'
 
 const drawerWidth = 122
 
@@ -44,29 +47,35 @@ interface Props {
 function _ClashyApp({ currentTab }: Props) {
     const classes = useStyles()
     return (
-    <div className={classes.root}>
-        <AppBar position='fixed' className={classes.appBar}>
-            <Toolbar>
-                {getIcon(currentTab)}
-                <Typography variant='h6'>
-                    {currentTab}
-                </Typography>
-            </Toolbar>
-        </AppBar>
-        <Drawer
-            className={classes.drawer}
-            variant={'persistent'}
-            anchor={'left'}
-            open={true}
-            classes={{
-                paper: classes.drawerPaper
-            }}
-        >
-            <SideBar />
-        </Drawer>
-        <main className={classes.content}>
-            <ContentPanel />
-        </main>
+        <div>
+            <div className={classes.root}>
+                <AppBar position='fixed' className={classes.appBar}>
+                    <TitleBar />
+                    <Toolbar>
+                        <div className='grabber' style={{ height: '64px', minHeight: '64px' }}>
+                            {getIcon(currentTab)}
+                            <Typography variant='h6'>
+                                {currentTab}
+                            </Typography>
+                        </div>
+                        <WindowControls />
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    className={classes.drawer}
+                    variant={'persistent'}
+                    anchor={'left'}
+                    open={true}
+                    classes={{
+                        paper: classes.drawerPaper
+                    }}
+                >
+                    <SideBar />
+                </Drawer>
+                <main className={classes.content}>
+                    <ContentPanel />
+                </main>
+            </div>
     </div>
     )
 }
